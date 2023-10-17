@@ -1,6 +1,13 @@
 #!/bin/bash
 # script to randomly generate a number that users have to guess
 PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
+
+# generate random number between 1 and 1000
+RANDOM_NUMBER=$(( RANDOM % 1000 + 1 ))
+
+#!/bin/bash
+# script to randomly generate a number that users have to guess
+PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
 echo -e "\n~~~~Number guessing game~~~~\n"
 
 
@@ -17,9 +24,9 @@ else
 # get player id
 PLAYER_ID=$($PSQL "SELECT player_id FROM players WHERE username = '$USERNAME'")
 #get player's games data
-GAMES_PLAYED=$($PSQL "SELECT COUNT(game_id) FROM games WHERE player_id = $PLAYER_ID")
-BEST_GAME=$($PSQL "SELECT MIN(number_of_guesses) FROM games WHERE player_id = $PLAYER_ID")
-echo -e "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
+GAMES_PLAYED=$($PSQL "SELECT COUNT(game_id) FROM games LEFT JOIN players USING(player_id) WHERE username='$USERNAME'")
+BEST_GAME=$($PSQL "SELECT MIN(number_of_guesses) FROM games LEFT JOIN players USING(player_id) WHERE username='$USERNAME'")
+echo Welcome back, $USERNAME\! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses.
 fi
 
 # generate random number between 1 and 1000
@@ -38,7 +45,7 @@ do
   if [[ ! $PLAYER_GUESS =~ ^[0-9]+$ ]]
     then
       # request valid guess
-      echo -e "\nThat is not an integer, guess again:"
+      echo That is not an integer, guess again:
       read PLAYER_GUESS
       # update number of guesses
       ((GUESS_COUNT++))
